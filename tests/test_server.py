@@ -192,6 +192,23 @@ class ProtocolTests(unittest.TestCase):
         self.assertIn("not listening", text)
         self.assertIn("--launch", text)
 
+    def test_a_port_with_nothing_on_it_is_translated_whatever_the_errno(self):
+        # This assertion is why the suite runs on three platforms. A closed port
+        # is refused on Windows and reset on Linux, and a Blender that dies
+        # mid-call resets on both, so the error can surface at the connect or at
+        # the first send. Only the connect was being translated, and Linux CI
+        # found the other one.
+        closed = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        closed.bind(("127.0.0.1", 0))
+        port = closed.getsockname()[1]
+        closed.close()
+
+        blender = server.Blender(port, None)
+        with self.assertRaises(server.BridgeError) as caught:
+            blender.call("status", {})
+        self.assertIn("not listening", str(caught.exception))
+        self.assertIn("--launch", str(caught.exception))
+
 
 class BridgeReplyTests(unittest.TestCase):
     def setUp(self):

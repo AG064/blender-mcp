@@ -42,6 +42,21 @@ class BridgeError(Exception):
     """The add-on could not be reached, or refused the command."""
 
 
+def unreachable(error, host="127.0.0.1", port=None) -> str:
+    """What to say when the socket to Blender did not work.
+
+    One message for every way that happens, because from where the agent is
+    standing they are the same fact: there is no Blender to talk to. Which
+    errno it was is our problem, not theirs.
+    """
+    where = f"{host}:{port}" if port else host
+    return (
+        f"Blender is not listening on {where} ({error}). "
+        "Open Blender with the Aurum Blender MCP add-on enabled and press "
+        "Start Bridge, or run this server with --launch to start one."
+    )
+
+
 # ── talking to Blender ───────────────────────────────────────────────────────
 
 
@@ -59,11 +74,7 @@ class Blender:
         try:
             connection = socket.create_connection((self.host, self.port), timeout=SOCKET_TIMEOUT)
         except OSError as error:
-            raise BridgeError(
-                f"Blender is not listening on {self.host}:{self.port} ({error}). "
-                "Open Blender with the Aurum Blender MCP add-on enabled and press "
-                "Start Bridge, or run this server with --launch to start one."
-            ) from error
+            raise BridgeError(unreachable(error)) from error
 
         try:
             connection.sendall((json.dumps(payload) + "\n").encode("utf-8"))
@@ -74,6 +85,14 @@ class Blender:
                     raise BridgeError("Blender closed the connection before answering")
                 buffer += chunk
             reply = json.loads(buffer.split(b"\n", 1)[0].decode("utf-8"))
+        except OSError as error:
+            # The same failure, one step later. A port with nothing on it is
+            # refused on Windows and reset on Linux, and a Blender that dies
+            # mid-call resets on both -- so the connection error can surface at
+            # the connect or at the first send, and only the first of those was
+            # being translated. A raw traceback here is the least useful thing
+            # to hand somebody whose Blender has just gone away.
+            raise BridgeError(unreachable(error)) from error
         finally:
             connection.close()
 
