@@ -1,0 +1,6 @@
+# Nothing here is generated.
+__pycache__/
+*.pyc
+blender-captures/
+*.glb
+test-*

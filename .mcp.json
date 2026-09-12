@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "aurum-blender": {
+      "command": "C:\\Users\\aleks\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "A:\\RecoveredProjects\\C_Drive\\Game_Development\\blender-mcp\\server\\aurum_blender_mcp.py",
+        "--port",
+        9081,
+        "--root",
+        "A:\\RecoveredProjects\\C_Drive\\Game_Development\\blender-mcp",
+        "--blender",
+        "A:\\SteamLibrary\\steamapps\\common\\Blender\\blender.exe"
+      ]
+    }
+  }
+}
