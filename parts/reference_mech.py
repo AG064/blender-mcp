@@ -215,27 +215,21 @@ def arm(mats, side):
     # it a curve without smoothing the whole thing into a blob.
     parts.append(kit.tube("shoulder", 0.23, 0.30, (x, 0.0, SHOULDER), mats["steel"],
                           axis="X", segments=18))
-    # A cap, built as four slabs stacked along the arm and shrinking outward.
-    # A slab alone is a plate; a stack with each layer narrower than the last is
-    # a dome, and it keeps the hard edges the sheet draws instead of smoothing
-    # into a blob.
-    cap = (
-        (0.34, 0.86, 0.30, 0.02, 0.20),
-        (0.46, 0.96, 0.34, 0.00, 0.15),
-        (0.46, 1.00, 0.36, 0.00, 0.02),
-        (0.40, 0.90, 0.30, 0.00, -0.16),
-    )
+    # A cap, rounded by one deep bevel rather than by stacked layers.
+    #
+    # Two attempts at stacking came first and both were worse. Slabs marching
+    # outward along the arm are a staircase; slabs sharing an axis but varying
+    # in thickness show their edges as ridges, so the cap reads as a stack of
+    # tubes. What the sheet actually draws is a single form with a generous
+    # chamfer, and a bevel with enough segments produces exactly that while
+    # keeping the hard outer edge -- which smoothing the mesh would lose.
     reach = PAULDRON_OUT - SHOULDER_X
-    for index, (width, depth_p, height_p, dy, dz) in enumerate(cap):
-        material = mats["white"] if index < 3 else mats["olive"]
-        parts.append(kit.slab("pauldron", (width, depth_p, height_p),
-                              (x + reach * (0.35 + index * 0.18) * side, -0.02 + dy,
-                               SHOULDER + dz),
-                              material, bevel=0.075,
-                              rotation=(0.0, math.radians(-10 * side), 0.0)))
-    parts.append(kit.slab("pauldron_edge", (0.20, 0.86, 0.07),
-                          (x + reach * 0.30 * side, -0.02, SHOULDER - 0.30),
-                          mats["olive"], bevel=0.02))
+    hub = x + reach * 0.50 * side
+    tilt = math.radians(-11 * side)
+    parts.append(kit.slab("pauldron", (0.44, 1.00, 0.52), (hub, -0.02, SHOULDER + 0.02),
+                          mats["white"], bevel=0.13, segments=5, rotation=(0.0, tilt, 0.0)))
+    parts.append(kit.slab("pauldron_under", (0.38, 0.84, 0.16), (hub, -0.02, SHOULDER - 0.28),
+                          mats["olive"], bevel=0.06, rotation=(0.0, tilt, 0.0)))
 
     # Upper arm: dark, narrow, mostly hidden behind the pauldron.
     parts.append(kit.slab("upper_arm", (UPPER_ARM, UPPER_ARM * 1.1, 0.46), (x + 0.07 * side, 0.0, SHOULDER - 0.40),
