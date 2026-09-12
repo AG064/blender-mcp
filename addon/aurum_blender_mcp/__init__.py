@@ -154,6 +154,12 @@ def register():
         bpy.utils.register_class(cls)
     if not hasattr(bpy.types.Scene, "aurum_mcp_note"):
         bpy.types.Scene.aurum_mcp_note = StringProperty(default="")
+    # The handlers were written and then never installed, so the preference
+    # saying "start with Blender" did nothing and the bridge only ever came up
+    # if somebody pressed the button. Every test until now ran headless through
+    # `headless.py`, which starts the bridge itself, so the fault was invisible
+    # in exactly the mode the add-on is actually used in.
+    _install_handlers()
 
 
 def unregister():

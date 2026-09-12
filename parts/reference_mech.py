@@ -170,6 +170,18 @@ def torso(mats):
     parts.append(kit.slab("chest_lower", (half * 1.30, 0.13, span * 0.30),
                           (0.0, -depth * 0.46, centre - span * 0.26), mats["olive"], bevel=0.035))
 
+    # Faceting. The sheet's chest is a set of angled planes rather than one
+    # face, and that is most of what separates a designed machine from a box
+    # with a stripe on it: a raised centre plate, and a bevel running down to
+    # the waist.
+    parts.append(kit.slab("chest_centre", (half * 0.84, 0.09, span * 0.50),
+                          (0.0, -depth * 0.545, centre - span * 0.12),
+                          mats["white"], bevel=0.035))
+    parts.append(kit.slab("chest_bevel", (half * 0.78, 0.09, span * 0.20),
+                          (0.0, -depth * 0.52, centre - span * 0.42),
+                          mats["olive"], bevel=0.03,
+                          rotation=(math.radians(22), 0.0, 0.0)))
+
     # Shoulder blocks the pauldrons hang from.
     for side in (1, -1):
         parts.append(kit.slab("chest_flank", (0.16, depth * 0.86, span * 0.78),
@@ -233,22 +245,22 @@ def arm(mats, side):
                           mats["olive"], bevel=0.06, rotation=(0.0, tilt, 0.0)))
 
     # Upper arm: dark, narrow, mostly hidden behind the pauldron.
-    parts.append(kit.slab("upper_arm", (UPPER_ARM, UPPER_ARM * 1.1, 0.46), (x + 0.07 * side, 0.0, SHOULDER - 0.40),
+    parts.append(kit.slab("upper_arm", (UPPER_ARM, UPPER_ARM * 1.1, 0.56), (x + 0.07 * side, 0.0, SHOULDER - 0.44),
                           mats["dark"], bevel=0.035))
-    parts.append(kit.tube("elbow", 0.135, 0.30, (x + 0.07 * side, 0.0, SHOULDER - 0.67),
+    parts.append(kit.tube("elbow", 0.135, 0.30, (x + 0.07 * side, 0.0, SHOULDER - 0.78),
                           mats["steel"], axis="X", segments=14))
 
     # Forearm: white plated over an olive core, wider than the upper arm.
-    parts.append(kit.slab("forearm", (FOREARM, FOREARM * 1.15, 0.52), (x + 0.07 * side, -0.01, SHOULDER - 0.96),
+    parts.append(kit.slab("forearm", (FOREARM, FOREARM * 1.15, 0.62), (x + 0.07 * side, -0.01, SHOULDER - 1.14),
                           mats["dark"], bevel=0.035))
-    parts.append(kit.slab("forearm_plate", (FOREARM * 1.15, 0.24, 0.46), (x + 0.07 * side, -0.16, SHOULDER - 0.94),
+    parts.append(kit.slab("forearm_plate", (FOREARM * 1.15, 0.24, 0.54), (x + 0.07 * side, -0.16, SHOULDER - 1.12),
                           mats["white"], bevel=0.04))
-    parts.append(kit.slab("forearm_edge", (FOREARM * 1.05, 0.26, 0.07), (x + 0.07 * side, -0.02, SHOULDER - 1.22),
+    parts.append(kit.slab("forearm_edge", (FOREARM * 1.05, 0.26, 0.07), (x + 0.07 * side, -0.02, SHOULDER - 1.46),
                           mats["olive"], bevel=0.015))
 
     # Hand. Fingers matter: the sheet's hands are articulated, and a mitt reads
     # as unfinished at any distance.
-    hand_z = SHOULDER - 1.30
+    hand_z = SHOULDER - 1.62
     parts.append(kit.slab("hand", (0.28, 0.22, 0.24), (x + 0.07 * side, -0.01, hand_z),
                           mats["dark"], bevel=0.035))
     for index in range(4):
@@ -337,8 +349,8 @@ def leg(mats, side):
 # Where the weapons hang. The hands, because that is where a machine holds a
 # gun, and the launcher on the left shoulder where the sheet leaves a hardpoint
 # and where the arm does not swing through it.
-HAND_R = (-(SHOULDER_X + 0.07), 0.0, SHOULDER - 1.30)
-HAND_L = (SHOULDER_X + 0.07, 0.0, SHOULDER - 1.30)
+HAND_R = (-(SHOULDER_X + 0.07), 0.0, SHOULDER - 1.62)
+HAND_L = (SHOULDER_X + 0.07, 0.0, SHOULDER - 1.62)
 POD_AT = (SHOULDER_X * 1.26, 0.24, SHOULDER + 0.30)
 
 PIVOTS = {
