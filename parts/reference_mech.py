@@ -23,6 +23,7 @@ import bpy
 import mathutils
 
 import mech_kit as kit
+import weapons
 
 HEIGHT = 6.0
 
@@ -333,6 +334,13 @@ def leg(mats, side):
 
 # ── assembly ─────────────────────────────────────────────────────────────────
 
+# Where the weapons hang. The hands, because that is where a machine holds a
+# gun, and the launcher on the left shoulder where the sheet leaves a hardpoint
+# and where the arm does not swing through it.
+HAND_R = (-(SHOULDER_X + 0.07), 0.0, SHOULDER - 1.30)
+HAND_L = (SHOULDER_X + 0.07, 0.0, SHOULDER - 1.30)
+POD_AT = (SHOULDER_X * 1.26, 0.24, SHOULDER + 0.30)
+
 PIVOTS = {
     "torso": ((0.0, 0.0, HIP), None),
     "head": ((0.0, 0.0, NECK), "torso"),
@@ -344,6 +352,10 @@ PIVOTS = {
     "foot_r": ((-STANCE, 0.0, ANKLE), "knee_r"),
     "arm_l": ((SHOULDER_X, 0.0, SHOULDER), "torso"),
     "arm_r": ((-SHOULDER_X, 0.0, SHOULDER), "torso"),
+    "gun_l": (HAND_L, "arm_l"),
+    "gun_r": (HAND_R, "arm_r"),
+    "blade_l": (HAND_L, "arm_l"),
+    "blade_r": (HAND_R, "arm_r"),
 }
 
 
@@ -368,6 +380,33 @@ def build():
     collect("torso", lambda: torso(mats))
     collect("torso", lambda: backpack(mats))
     collect("head", lambda: head(mats))
+
+    # The weapons, on the joints the game drives them from.
+    #
+    # The sheet is a bare machine and has no weapons, but the game fires a
+    # cannon, a launcher and a blade, and it drives them through joints named
+    # gun_l, gun_r, blade_l and blade_r -- recoil slides the gun joints and the
+    # blade joints swing through the cut. A mech exported without them animates
+    # nothing when it fires, and the failure is a warning in a log rather than
+    # anything a player would report as a bug.
+    #
+    # `weapons.py` builds each piece with its mounting point at its own origin
+    # and its muzzle down -Y, so mounting one is a translation to the joint and
+    # nothing else. Both sides get a joint, because the game looks for both;
+    # only two of them carry anything, which is what the sheet's machine would
+    # do if it were armed.
+    weapon_mats = weapons.palette()
+
+    def mount(node, builder, at):
+        def build_and_place():
+            offset = mathutils.Vector(at)
+            for obj in builder(weapon_mats):
+                obj.location = obj.location + offset
+        collect(node, build_and_place)
+
+    mount("gun_r", weapons.autocannon, HAND_R)
+    mount("blade_l", weapons.arc_blade, HAND_L)
+    mount("torso", weapons.missile_pod, POD_AT)
 
     # The hierarchy, built parents first so a joint can be offset from a parent
     # that already exists. The world positions are kept separately from the
