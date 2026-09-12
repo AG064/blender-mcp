@@ -1,0 +1,6 @@
+# Everything in this repository is text and lives in LF, so a clone on Windows
+# and a clone on Linux produce the same bytes.
+* text=auto eol=lf
+*.png binary
+*.glb binary
+*.blend binary
