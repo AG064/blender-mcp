@@ -2,5 +2,11 @@
 __pycache__/
 *.pyc
 blender-captures/
+previews/
 *.glb
 test-*
+
+# The models are committed by the game that ships them, not by the tool that
+# makes them. A .blend is somebody's working file; what belongs in version
+# control is the script that produced the result.
+models/
